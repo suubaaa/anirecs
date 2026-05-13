@@ -137,7 +137,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 async function main(titles) {
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: `Based on these anime the user rated 7 or above: ${titles.join(", ")}. Recommend 5 anime they haven't seen. Return only a JSON array of title strings.`
+    contents: `Based on these anime the user rated 7 or above: ${titles.join(", ")}. Recommend 5 anime they haven't seen. 
+    Recommend 5 anime they haven't seen. Prioritize lesser-known, underrated, or underground titles
+    — avoid mainstream hits like Attack on Titan, Demon Slayer, Naruto, One Piece, or anything in the top 50 most popular on AniList.
+    Favor hidden gems with niche fanbases, lower view counts, or that are critically appreciated but not widely watched.
+    Return only a JSON array of title strings.`
   });
   console.log(response.text);
   return response.text;

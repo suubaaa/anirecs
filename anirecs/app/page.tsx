@@ -5,8 +5,7 @@ import Cards from "@/components/Cards";
 
 export default function Home() {
   const[username, setUsername] = useState("");
-  const[recommendations, setRecommendations] = useState([]);
-  const[image, setImage] = useState([]);
+  const [results, setResults] = useState<{title: string, image: string}[]>([]);
 
   async function handleSubmit() {
     // we need to grab whats in input field then extract as string
@@ -16,8 +15,14 @@ export default function Home() {
       body: JSON.stringify({username: username})
     })
 
+    // used ai here to help me figure out my bug
+    // note to self, learn about connecting two use states into one 
     const result = await res.json();
-    setRecommendations(JSON.parse(result.recommendations));
+    const recs = JSON.parse(result.recommendations);
+    setResults(recs.map((title: string, i: number) => ({
+      title,
+      image: result.images[i]
+    })));
 
     console.log(result)
   }
@@ -42,8 +47,8 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-5">
-          {recommendations.map((rec) => (
-              <Cards key={rec} title={rec} />
+          {results.map((rec) => (
+              <Cards key={rec.title} title={rec.title} image={rec.image}/>
           ))}
       </div>
       

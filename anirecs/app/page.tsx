@@ -1,8 +1,12 @@
 "use client"
+
 import { useState } from "react";
+import Cards from "@/components/Cards";
 
 export default function Home() {
   const[username, setUsername] = useState("");
+  const[recommendations, setRecommendations] = useState([]);
+  const[image, setImage] = useState([]);
 
   async function handleSubmit() {
     // we need to grab whats in input field then extract as string
@@ -13,6 +17,8 @@ export default function Home() {
     })
 
     const result = await res.json();
+    setRecommendations(JSON.parse(result.recommendations));
+
     console.log(result)
   }
 
@@ -34,6 +40,13 @@ export default function Home() {
           onClick={handleSubmit}
         >GO</button>
       </div>
+
+      <div className="grid grid-cols-5">
+          {recommendations.map((rec) => (
+              <Cards key={rec} title={rec} />
+          ))}
+      </div>
+      
     </div>
   );
 }

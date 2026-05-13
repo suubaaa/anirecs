@@ -10,7 +10,15 @@ export async function POST(request: Request) {
     const titles =filtered.map(e => e.media.title.english);
     
     const recommendations = await main(titles);
-    return Response.json({ recommendations });
+    
+    //used ai here. 
+    if (!recommendations) return Response.json({ error: "No recommendations" }, { status: 500 });
+    
+    const recList = JSON.parse(recommendations);
+
+    // used ai here to figure out how to get the coverimage since i couldnt figure it out for my life
+    const images = await Promise.all(recList.map(title => getImage(title)));
+    return Response.json({ recommendations, images });
 }
 
 
@@ -87,13 +95,42 @@ async function getUserList(username: String) {
     } else { 
         return false;
     }
+}
 
+async function getImage(title: String) {
+    const query=`
+        query ($title: String) {
+            Media(search: $title, type: ANIME) {
+                coverImage {
+                    large
+                }
+            }
+        }
+    `;
+
+    const res = await fetch('https://graphql.anilist.co', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'           
+        },
+        body: JSON.stringify({
+            query: query,
+            variables: {
+                title: title
+            }
+        })
+    })
+
+    const result = await res.json();
+
+    return result.data.Media.coverImage.large;
 
 }
 
 function filterList(list) {
     return list.flatMap((e => e.entries)).filter(e => e.score >= 7);
-} 
+}
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
